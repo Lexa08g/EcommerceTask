@@ -1,47 +1,18 @@
-import { useOutletContext } from "react-router-dom";
 import ProductCard from "../../components/ProductCard";
-import { musicProducts } from "../../data/products";
+import { useProduct } from "../../utils/productcontext";
+import { useCategory } from "../../utils/categorycontext";
 
 export default function Dashboard() {
-  const context = useOutletContext();
-  const searchTerm = context?.searchTerm || "";
-  const selectedFormat = context?.selectedFormat || "all";
-  const setSearchTerm = context?.setSearchTerm;
-  const setSelectedFormat = context?.setSelectedFormat;
+  // 2.1 & 2.6 Menggunakan data produk dari ProductContext
+  const { products } = useProduct();
+  // 2.3 & 2.6 Menggunakan kategori dan pencarian dari CategoryContext
+  const { searchTerm, selectedCategory, resetFilters, filterProducts } = useCategory();
 
-  // Filter produk berdasarkan pencarian dan pilihan format
-  const filteredProducts = musicProducts.filter((product) => {
-    // 1. Filter format disk
-    let formatMatch = true;
-    const formatLower = product.format.toLowerCase();
-    if (selectedFormat === "vinyl") {
-      formatMatch = formatLower.includes("vinyl");
-    } else if (selectedFormat === "cd") {
-      formatMatch = formatLower.includes("cd");
-    } else if (selectedFormat === "limited") {
-      formatMatch =
-        formatLower.includes("limited") ||
-        formatLower.includes("anniversary") ||
-        formatLower.includes("audiophile") ||
-        formatLower.includes("remaster");
-    }
-
-    // 2. Filter kata kunci pencarian
-    const query = searchTerm.trim().toLowerCase();
-    const searchMatch =
-      !query ||
-      product.name.toLowerCase().includes(query) ||
-      product.artist.toLowerCase().includes(query) ||
-      product.genre.toLowerCase().includes(query) ||
-      product.format.toLowerCase().includes(query) ||
-      product.desc.toLowerCase().includes(query);
-
-    return formatMatch && searchMatch;
-  });
+  // Filter produk secara dinamis menggunakan helper dari CategoryContext
+  const filteredProducts = filterProducts(products);
 
   const handleResetFilter = () => {
-    if (setSearchTerm) setSearchTerm("");
-    if (setSelectedFormat) setSelectedFormat("all");
+    resetFilters();
   };
 
   return (
@@ -51,7 +22,7 @@ export default function Dashboard() {
           Katalog Disk Musik (Vinyl & CD)
         </h1>
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          Menampilkan {filteredProducts.length} dari {musicProducts.length} album
+          Menampilkan {filteredProducts.length} dari {products.length} album
         </span>
       </div>
 
@@ -60,7 +31,7 @@ export default function Dashboard() {
           <p className="text-gray-600 dark:text-gray-400 text-lg mb-2">
             Tidak ada disk musik yang cocok dengan pencarian atau filter Anda.
           </p>
-          {(searchTerm || selectedFormat !== "all") && (
+          {(searchTerm || selectedCategory !== "all") && (
             <button
               onClick={handleResetFilter}
               className="mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"

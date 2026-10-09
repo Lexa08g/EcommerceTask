@@ -2,13 +2,8 @@ import { Link } from "react-router-dom";
 import { useCart } from "../../utils/cartcontext";
 
 export default function Cart() {
-  // Mengambil cart, updateQty, removeFromCart, totalQty dari context useCart
-  const { cart, updateQty, removeFromCart, totalQty } = useCart();
-
-  const totalPrice = cart.reduce(
-    (sum, item) => sum + (typeof item.price === "number" ? item.price : 0) * item.qty,
-    0
-  );
+  // Mengambil cart, updateQty, removeFromCart, totalQty, totalPrice dari context useCart
+  const { cart, updateQty, removeFromCart, totalQty, totalPrice } = useCart();
 
   if (cart.length === 0) {
     return (

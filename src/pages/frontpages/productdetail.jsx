@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { useLocation, useParams, Link } from "react-router-dom";
 import { useCart } from "../../utils/cartcontext";
-import { musicProducts } from "../../data/products";
+import { useProduct } from "../../utils/productcontext";
 
 export default function ProductDetail() {
   {/* Mengambil ID produk dari URL */}
   const { id } = useParams();
   // Mengambil state yang dikirim dari Link
   const location = useLocation();
-  const productFromData = musicProducts.find((item) => String(item.id) === String(id));
+  const { getProductById } = useProduct();
+  const productFromData = getProductById(id);
   const p = location.state || productFromData || { id, name: `Produk ${id}`, price: 100000 };
   const { addToCart } = useCart();
 
@@ -20,27 +21,27 @@ export default function ProductDetail() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Mengambil review tersimpan dari localStorage per ID produk
+  // Mengambil review tersimpan dari localStorage per ID produk (default kosong)
   const [reviews, setReviews] = useState(() => {
     const saved = localStorage.getItem(`reviews_${p.id}`);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Hapus review bawaan dummy "Kolektor Vinyl" jika sebelumnya pernah tersimpan di browser
+        return Array.isArray(parsed)
+          ? parsed.filter((item) => item.author !== "Kolektor Vinyl")
+          : [];
       } catch {
         return [];
       }
     }
-    // Review awal sebagai contoh
-    return [
-      {
-        id: 1,
-        author: "Kolektor Vinyl",
-        rating: 5,
-        review: "Kualitas audio master analog-nya sangat bersih dan detail. Kemasan piringan hitamnya tiba dalam kondisi mulus!",
-        date: "2 hari yang lalu",
-      },
-    ];
+    // Default: kosong tanpa ulasan bawaan
+    return [];
   });
+
+  const handleDeleteReview = (reviewId) => {
+    setReviews((prev) => prev.filter((item) => item.id !== reviewId));
+  };
 
   // Simpan ke localStorage setiap kali review bertambah
   useEffect(() => {
@@ -153,9 +154,14 @@ export default function ProductDetail() {
             </h2>
 
             {reviews.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-6">
-                Belum ada review. Jadilah orang pertama yang memberikan ulasan!
-              </p>
+              <div className="text-center py-8 px-4 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  Belum ada ulasan atau rating untuk album ini.
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  Gunakan form di samping untuk memberikan penilaian pertama!
+                </p>
+              </div>
             ) : (
               <ul className="space-y-4">
                 {reviews.map((r) => (
@@ -178,11 +184,21 @@ export default function ProductDetail() {
                           ))}
                         </div>
                       </div>
-                      {r.date && (
-                        <span className="text-xs text-gray-400 dark:text-gray-400">
-                          {r.date}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2.5">
+                        {r.date && (
+                          <span className="text-xs text-gray-400 dark:text-gray-400">
+                            {r.date}
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteReview(r.id)}
+                          title="Hapus ulasan ini"
+                          className="text-gray-400 hover:text-red-500 text-xs p-1 transition-colors cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
                     <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
                       {r.review}

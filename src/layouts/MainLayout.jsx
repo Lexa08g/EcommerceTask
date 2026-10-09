@@ -1,11 +1,16 @@
-import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CartToast from "../components/CartToast";
+import { useCategory } from "../utils/categorycontext";
 
 export default function MainLayout() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFormat, setSelectedFormat] = useState("all");
+  const {
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+    categories,
+  } = useCategory();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,7 +23,7 @@ export default function MainLayout() {
   };
 
   const handleFormatChange = (e) => {
-    setSelectedFormat(e.target.value);
+    setSelectedCategory(e.target.value);
     if (location.pathname !== "/" && location.pathname !== "/dashboard") {
       navigate("/");
     }
@@ -43,7 +48,7 @@ export default function MainLayout() {
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-sm cursor-pointer"
             >
               ✕
             </button>
@@ -51,20 +56,21 @@ export default function MainLayout() {
         </div>
 
         <select
-          value={selectedFormat}
+          value={selectedCategory}
           onChange={handleFormatChange}
           className="w-full md:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
         >
-          <option value="all">Semua Format Disk</option>
-          <option value="vinyl">Vinyl (Piringan Hitam)</option>
-          <option value="cd">Audio CD</option>
-          <option value="limited">Edisi Khusus / Remaster</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
         </select>
       </header>
 
       {/* Main Section */}
       <main className="flex-1 p-6">
-        <Outlet context={{ searchTerm, setSearchTerm, selectedFormat, setSelectedFormat }} />
+        <Outlet context={{ searchTerm, setSearchTerm, selectedFormat: selectedCategory, setSelectedFormat: setSelectedCategory }} />
       </main>
 
       {/* Floating Animated Toast Notification saat Add to Cart */}

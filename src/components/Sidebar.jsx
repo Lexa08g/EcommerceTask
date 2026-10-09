@@ -36,6 +36,13 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         >
           About
         </Link>
+        <Link
+          to="/"
+          onClick={() => setSidebarOpen(false)}
+          className="hover:bg-blue-50 dark:hover:bg-blue-900/30 p-2 rounded transition-colors text-blue-600 dark:text-blue-400 font-medium border-t border-gray-100 dark:border-gray-700 mt-2"
+        >
+          ← Kembali ke Toko
+        </Link>
       </nav>
     </div>
   );

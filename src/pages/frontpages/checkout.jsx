@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { useCart } from "../../utils/cartcontext";
 
 export default function Checkout() {
-  const { cart } = useCart();
-  const total = cart.reduce((sum, item) => sum + (item.price || 0) * item.qty, 0);
+  const { cart, clearCart, totalPrice } = useCart();
+  const total = totalPrice;
 
   const [fullName, setFullName] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("transfer");
   const [isOrdered, setIsOrdered] = useState(false);
+  const [lastOrderTotal, setLastOrderTotal] = useState(0);
 
   const handlePay = (e) => {
     e.preventDefault();
@@ -17,6 +18,8 @@ export default function Checkout() {
       alert("Harap lengkapi nama dan alamat pengiriman.");
       return;
     }
+    setLastOrderTotal(total);
+    clearCart(); // 2.5 Mengosongkan keranjang di state & localStorage setelah order selesai
     setIsOrdered(true);
   };
 
@@ -31,7 +34,7 @@ export default function Checkout() {
           Terima kasih, <span className="font-semibold text-gray-900 dark:text-white">{fullName}</span>. Disk musik Anda akan segera diproses dan dikirim ke alamat Anda.
         </p>
         <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-          Total Pembayaran: Rp {total.toLocaleString()}
+          Total Pembayaran: Rp {lastOrderTotal.toLocaleString()}
         </p>
         <div className="pt-2">
           <Link

@@ -37,6 +37,12 @@ export default function Navbar() {
         <Link to="/checkout" className="hover:text-gray-200">
           Checkout
         </Link>
+        <Link
+          to="/admin/dashboard"
+          className="hover:text-gray-200 text-xs px-2 py-1 rounded bg-white/10 border border-white/20"
+        >
+          Admin
+        </Link>
         {/* Toggle Dark / Light Mode */}
         <button
           type="button"

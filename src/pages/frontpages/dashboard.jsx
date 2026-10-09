@@ -1,4 +1,4 @@
-import ProductCard from "../../components/ProductCard";
+import ProductCard from "../../components/productcard";
 import { useProduct } from "../../utils/productcontext";
 import { useCategory } from "../../utils/categorycontext";
 
